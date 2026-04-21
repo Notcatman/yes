@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Vacancies{% endblock %}
+
+{% block content %}
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+  <div>
+    <h1>Vacancies</h1>
+    <p style="margin: 0;">
+      {% if vacancies %}
+        {{ vacancies|length }} position{{ vacancies|length|pluralize }} open right now
+      {% else %}
+        Browse open positions
+      {% endif %}
+    </p>
+  </div>
+  <a href="{% url 'post_vacancy' %}" class="btn btn-primary">+ Post a job</a>
+</div>
+
+{% if vacancies %}
+  <div style="display: flex; flex-direction: column; gap: 1rem;">
+    {% for vacancy in vacancies %}
+    <div class="card" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;">
+
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <h2 style="font-size: 1.25rem; margin: 0;">{{ vacancy.title }}</h2>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.875rem; color: var(--ink-muted); margin-bottom: 0.75rem;">
+          <span>
+            <span style="font-weight: 500; color: var(--ink);">${{ vacancy.salary }}</span>
+            &nbsp;/ year
+          </span>
+          <span>{{ vacancy.author.name }}</span>
+          <span>{{ vacancy.uploaded_at|date:"M d, Y" }}</span>
+        </div>
+
+        {% if vacancy.description %}
+          <p style="margin: 0; font-size: 0.9rem; color: var(--ink-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ vacancy.description }}
+          </p>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; align-items: center; padding-top: 0.25rem;">
+        <a href="{% url 'apply_vacancy' vacancy.id %}" class="btn btn-outline" style="white-space: nowrap;">
+          Apply now &rarr;
+        </a>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div style="text-align: center; padding: 4rem 2rem; border: 1px dashed var(--ink-faint); border-radius: var(--radius);">
+    <p style="font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--ink); margin-bottom: 0.5rem;">No openings yet</p>
+    <p style="margin-bottom: 1.5rem;">Be the first to post a position.</p>
+    <a href="{% url 'post_vacancy' %}" class="btn btn-primary">Post a job</a>
+  </div>
+{% endif %}
+
+{% endblock %}
