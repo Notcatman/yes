@@ -1,114 +1,140 @@
-{% extends 'base.html' %} {% block title %}Post New Vacancy{% endblock %} 
+{% extends 'base.html' %}
+{% block title %}Post New Vacancy{% endblock %}
+
+{% block extra_head %}
+<style>
+  .form-wrap { max-width: 600px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.25rem; }
+
+  .field label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    background: var(--white);
+    border: 1px solid var(--ink-faint);
+    border-radius: var(--radius);
+    padding: 0.625rem 0.875rem;
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    appearance: none;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(26, 23, 20, 0.07);
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--ink-faint); }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6560' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+
+  .field textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
+
+  .field .hint { font-size: 0.8rem; color: var(--ink-muted); }
+
+  .salary-wrap { position: relative; }
+  .salary-wrap .currency {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9375rem;
+    color: var(--ink-muted);
+    pointer-events: none;
+  }
+  .salary-wrap input { padding-left: 1.75rem; }
+
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ink-faint);
+  }
+
+  .form-actions a {
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .form-actions a:hover { color: var(--ink); opacity: 1; }
+</style>
+{% endblock %}
+
 {% block content %}
-    <h1>Post a New Job Vacancy</h1>
 
-    <form method="post" style="max-width: 600px">
-    {% csrf_token %}
+<div style="margin-bottom: 1.5rem;">
+  <a href="{% url 'vacancies' %}" style="font-size: 0.875rem; color: var(--ink-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+    &larr; All vacancies
+  </a>
+</div>
 
-    <div style="margin-bottom: 15px">
-        <label
-        for="author"
-        style="display: block; margin-bottom: 5px; font-weight: bold"
-        >Posted by:</label
-        >
-        <select
-        name="author"
-        id="author"
-        required
-        style="
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        "
-        >
-        <option value="">Select the poster...</option>
-        {% for user in users %}
-        <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
-        {% endfor %}
-        </select>
+<div style="margin-bottom: 2rem;">
+  <h1 style="margin-bottom: 0.25rem;">Post a job</h1>
+  <p style="margin: 0;">Fill in the details below to publish a new vacancy.</p>
+</div>
+
+<form method="post" class="form-wrap">
+  {% csrf_token %}
+
+  <div class="field">
+    <label for="author">Posted by</label>
+    <select name="author" id="author" required>
+      <option value="">Select author</option>
+      {% for user in users %}
+      <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label for="title">Job title</label>
+    <input type="text" name="title" id="title" required maxlength="100" placeholder="..." />
+  </div>
+
+  <div class="field">
+    <label for="salary">Salary</label>
+    <div class="salary-wrap">
+      <span class="currency">$</span>
+      <input type="number" name="salary" id="salary" min="1" max="99999" required placeholder="0000" />
     </div>
+    <span class="hint">Annual salary in USD, up to $99,999.</span>
+  </div>
 
-    <div style="margin-bottom: 15px">
-        <label
-        for="title"
-        style="display: block; margin-bottom: 5px; font-weight: bold"
-        >Job Title:</label
-        >
-        <input
-        type="text"
-        name="title"
-        id="title"
-        required
-        maxlength="100"
-        style="
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        "
-        />
-    </div>
+  <div class="field">
+    <label for="description">Job description <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-muted);">(optional)</span></label>
+    <textarea name="description" id="description" rows="6" placeholder="Describe the role, responsibilities, requirements…"></textarea>
+  </div>
 
-    <div style="margin-bottom: 15px">
-        <label
-        for="salary"
-        style="display: block; margin-bottom: 5px; font-weight: bold"
-        >Salary ($):</label
-        >
-        <input
-        type="number"
-        name="salary"
-        id="salary"
-        min="1"
-        max="99999"
-        required
-        style="
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        "
-        />
-    </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Post vacancy</button>
+    <a href="{% url 'vacancies' %}">Cancel</a>
+  </div>
 
-    <div style="margin-bottom: 15px">
-        <label
-        for="description"
-        style="display: block; margin-bottom: 5px; font-weight: bold"
-        >Job Description:</label
-        >
-        <textarea
-        name="description"
-        id="description"
-        rows="6"
-        style="
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-        "
-        ></textarea>
-    </div>
+</form>
 
-    <button
-        type="submit"
-        style="
-        background-color: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        "
-    >
-        Post Vacancy
-    </button>
-    <a
-        href="{% url 'vacancies' %}"
-        style="margin-left: 10px; color: #6c757d; text-decoration: none"
-        >Cancel</a
-    >
-    </form>
 {% endblock %}
